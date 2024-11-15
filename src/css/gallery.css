@@ -26,7 +26,7 @@ input[type='search']:focus {
   color: #2e2f42;
 }
 
-button {
+.btn-start {
   font-family: inherit;
   border-radius: 8px;
   padding: 8px 16px;
@@ -42,8 +42,10 @@ button {
   border: none;
 }
 
-button:hover,
-button:focus {
+.btn-start:hover,
+.btn-start:focus,
+.load-more:focus,
+.load-more:hover {
   background-color: #6c8cff;
 }
 
@@ -117,4 +119,34 @@ p {
   width: 100%;
   object-fit: cover;
   height: 200px;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.load-more-hidden {
+  display: none;
+}
+
+.load-more {
+  border-radius: 8px;
+  padding: 8px 16px;
+  width: 125px;
+  height: 40px;
+  font-size: 16px;
+  text-align: center;
+  border: none;
+  background-color: #4e75ff;
+  color: #fff;
+  cursor: pointer;
+  line-height: 150%;
+  letter-spacing: 0.04em;
+  margin: 32px auto 44px;
+
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
 }
