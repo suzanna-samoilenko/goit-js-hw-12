@@ -4,11 +4,14 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
+import axios from 'axios';
 
 const form = document.querySelector('.search-form');
 const galleryContainer = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
 const loadMore = document.querySelector('.load-more');
+
+axios.defaults.timeout = 5000; // Встановлення тайм-ауту для запитів
 
 form.addEventListener('submit', onSubmitForm);
 loadMore.addEventListener('click', onLoadMore);
@@ -20,12 +23,13 @@ let lightbox = new SimpleLightbox('.gallery a', {
 
 let page = 1;
 let totalHits = 0;
+let query = '';
 
 async function onSubmitForm(event) {
   event.preventDefault();
   galleryContainer.innerHTML = '';
   page = 1;
-  const query = event.currentTarget.elements.query.value.trim();
+  query = event.currentTarget.elements.query.value.trim();
 
   if (!query) {
     iziToast.info({
@@ -41,9 +45,7 @@ async function onSubmitForm(event) {
 
   try {
     const { hits, totalHits: newTotalHits } = await fetchImages(query, page);
-    if (page === 1) {
-      totalHits = newTotalHits;
-    }
+    totalHits = newTotalHits;
 
     if (hits.length > 0) {
       galleryContainer.innerHTML = createMarkup(hits);
@@ -76,7 +78,12 @@ async function onLoadMore() {
       galleryContainer.insertAdjacentHTML('beforeend', createMarkup(hits));
       lightbox.refresh();
 
-      if (hits.length < PER_PAGE) {
+      if (hits.length < PER_PAGE || page * PER_PAGE >= totalHits) {
+        iziToast.info({
+          position: 'topRight',
+          title: 'End of Results',
+          message: "We're sorry, but you've reached the end of search results.",
+        });
         loadMore.classList.add('load-more-hidden');
       }
     }
@@ -102,8 +109,10 @@ function hideLoader() {
 }
 
 function scrollPage() {
-  const { height: cardHeight } =
-    galleryContainer.firstElementChild.getBoundingClientRect();
+  const firstChild = galleryContainer.firstElementChild;
+  if (!firstChild) return;
+
+  const { height: cardHeight } = firstChild.getBoundingClientRect();
   window.scrollBy({
     top: cardHeight * 2,
     behavior: 'smooth',
